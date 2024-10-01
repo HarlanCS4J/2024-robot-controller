@@ -35,6 +35,8 @@ import com.qualcomm.robotcore.eventloop.opmode.TeleOp;
 import com.qualcomm.robotcore.hardware.DcMotor;
 import com.qualcomm.robotcore.util.ElapsedTime;
 import com.qualcomm.robotcore.hardware.Servo;
+import java.util.List;
+import java.util.ArrayList;
 
 /*
  * This file contains an example of a Linear "OpMode".
@@ -76,6 +78,9 @@ public class OmniWheelsHarlan extends LinearOpMode {
     private DcMotor rightBackDrive = null;
     private Servo thisServo = null;
 
+    List<DcMotor> allMotors = new ArrayList<>();
+    List<Servo>   allServos = new ArrayList<>();
+
     @Override
     public void runOpMode() {
 
@@ -85,8 +90,16 @@ public class OmniWheelsHarlan extends LinearOpMode {
         leftBackDrive  = hardwareMap.get(DcMotor.class, "left_back_drive");
         rightFrontDrive = hardwareMap.get(DcMotor.class, "right_front_drive");
         rightBackDrive = hardwareMap.get(DcMotor.class, "right_back_drive");
+
+        allMotors.add(leftFrontDrive);
+        allMotors.add(rightFrontDrive);
+        allMotors.add(leftBackDrive);
+        allMotors.add(rightBackDrive);
         
         thisServo = hardwareMap.get(Servo.class, "best_servo_evar");
+
+        allServos.add(thisServo);
+        
 
         // ########################################################################################
         // !!!            IMPORTANT Drive Information. Test your motor directions.            !!!!!
@@ -116,15 +129,22 @@ public class OmniWheelsHarlan extends LinearOpMode {
         while (opModeIsActive()) {
             double max;
 
+            boolean grip   = gamepad2.right_bumper;
+            boolean release= gamepad2.right_trigger > 0.5;
             // POV Mode uses left joystick to go forward & strafe, and right joystick to rotate.
             double axial   = -gamepad1.left_stick_y;  // Note: pushing stick forward gives negative value
             double lateral =  gamepad1.left_stick_x;
             double yaw     =  gamepad1.right_stick_x;
 
+            telemetry.addData ("Axial", axial);
+            telemetry.addData ("Lateral", lateral);
+            telemetry.addData ("Yaw", yaw);           
+            
             static final double INCREMENT = 0.01;
             static final int CYCLE_MS = 50;
             static final double MAX_POS = 1.0;
             static final double MIN_POS = 0.0;
+            static final double LIFT_SPEED = 1.0;
 
             // Combine the joystick requests for each axis-motion to determine each wheel's power.
             // Set up a variable for each drive wheel to save the power level for telemetry.
@@ -145,7 +165,20 @@ public class OmniWheelsHarlan extends LinearOpMode {
                 leftBackPower   /= max;
                 rightBackPower  /= max;
             }
+            
+            if (grip) {
+                thisServo.setPosition(0);
+            } else if (release) {
+                thisServo.setPosition(1);
+            }
 
+            if (tubeLifterUp) {
+                tubeLifter.setPower(LIFT_SPEED);
+            } else if (tubeLifterDown) {
+                tubeLifter.setPower(-LIFT_SPEED);
+            } else {
+                tubeLifter.setPower(0);
+            }
             // This is test code:
             //
             // Uncomment the following code to test your motor directions.
@@ -170,9 +203,15 @@ public class OmniWheelsHarlan extends LinearOpMode {
             rightBackDrive.setPower(rightBackPower);
 
             // Show the elapsed game time and wheel power.
-            telemetry.addData("Status", "Run Time: " + runtime.toString());
-            telemetry.addData("Front left/Right", "%4.2f, %4.2f", leftFrontPower, rightFrontPower);
-            telemetry.addData("Back  left/Right", "%4.2f, %4.2f", leftBackPower, rightBackPower);
+            // telemetry.addData("Status", "Run Time: " + runtime.toString());
+            // telemetry.addData("Front left/Right", "%4.2f, %4.2f", leftFrontPower, rightFrontPower);
+            // telemetry.addData("Back  left/Right", "%4.2f, %4.2f", leftBackPower, rightBackPower);
+            for (DcMotor thisMotor in allMotors) {
+                telemetry.addData("MotorSpeed", thisMotor.getSpeed());
+            }
+            for (Servo thisServo in allServos) {
+                telemetry.addData("ServoPosition", thisServo.getPosition());
+            }
             telemetry.update();
         }
     }}
