@@ -94,10 +94,10 @@ public class AutoWithHardware extends LinearOpMode {
         while (opModeIsActive()) {
 
             robot.driveRobot(0,1,0);
-            sleep(2*INCH_TO_TICK);
+            sleep(2 * INCH_TO_TICK);
             robot.driveRobot(0,0,0);
-
             sleep(100);
+            
             
             // Send telemetry messages to explain controls and show robot status
             telemetry.addData("Drive", "Left Stick");
