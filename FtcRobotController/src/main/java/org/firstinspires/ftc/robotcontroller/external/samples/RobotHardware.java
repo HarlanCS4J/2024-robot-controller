@@ -32,6 +32,7 @@ package org.firstinspires.ftc.robotcontroller.external.samples;
 import com.qualcomm.robotcore.eventloop.opmode.LinearOpMode;
 import com.qualcomm.robotcore.hardware.DcMotor;
 import com.qualcomm.robotcore.hardware.Servo;
+import com.qualcomm.robotcore.hardware.CRServo;
 import com.qualcomm.robotcore.util.Range;
 
 /*
@@ -63,7 +64,7 @@ public class RobotHardware {
     private DcMotor rightDrive  = null;
     private DcMotor armMotor = null;
     private Servo   leftHand = null;
-    private Servo   rightHand = null;
+    private CRServo   rightHand = null;
 
     // Define Drive constants.  Make them public so they CAN be used by the calling OpMode
     public static final double MID_SERVO       =  0.5 ;
@@ -100,9 +101,9 @@ public class RobotHardware {
 
         // Define and initialize ALL installed servos.
         leftHand = myOpMode.hardwareMap.get(Servo.class, "left_hand");
-        rightHand = myOpMode.hardwareMap.get(Servo.class, "right_hand");
+        rightHand = myOpMode.hardwareMap.get(CRServo.class, "right_hand");
         leftHand.setPosition(MID_SERVO);
-        rightHand.setPosition(MID_SERVO);
+        rightHand.setPower(0);
 
         myOpMode.telemetry.addData(">", "Hardware Initialized");
         myOpMode.telemetry.update();
